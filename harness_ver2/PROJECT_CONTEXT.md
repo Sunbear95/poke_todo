@@ -11,10 +11,10 @@ Fill this file before implementation work begins.
 ```txt
 Project name: Poke Todo
 Project type: Web / Mobile-capable app concept
-Primary language: TBD
-Framework/tooling: TBD
-Package manager: TBD
-Runtime environment: Local-first development environment, final runtime TBD
+Primary language: JavaScript (ES modules)
+Framework/tooling: Node.js built-in test runner for the model layer
+Package manager: npm
+Runtime environment: Node.js >= 22 local-first model/test environment
 Repository path: /Users/jyoo/Documents/poke_todo
 ```
 
@@ -124,6 +124,6 @@ The project is successful when:
 
 | QID | Question | Owner | Status | Answer |
 |---|---|---|---|---|
-| Q-001 | Which implementation stack should be used? | Human/Agent | OPEN | TBD |
+| Q-001 | Which implementation stack should be used? | Human/Agent | CLOSED | JavaScript ES modules on Node.js >= 22 with npm and node:test for the MVP model layer |
 | Q-002 | Should the MVP use real Pokemon assets or original placeholder creatures during implementation? | Human | OPEN | Private demo may use Pokemon conceptually; public release should avoid IP risk |
 | Q-003 | Is deployment required, or is a local demo enough? | Human | OPEN | Local demo is enough until deployment is requested |
