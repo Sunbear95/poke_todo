@@ -34,7 +34,8 @@ DEFERRED
 | T-008 | Implement MVP model core loop | Builder | PHASE_4 | DONE | AC-002 through AC-008 | VALIDATION_REPORT.md |
 | T-009 | Validate MVP model behavior | Validator | PHASE_5 | DONE | AC-002 through AC-008, AC-010 | VALIDATION_REPORT.md |
 | T-010 | Implement mobile web GUI shell | Builder / Architect | PHASE_4 | DONE | AC-001, AC-003, AC-005, AC-007, AC-009 | VALIDATION_REPORT.md |
-| T-011 | Decide native mobile packaging path | Architect | PHASE_4 | TODO | AC-010 | TBD |
+| T-011 | Add Expo Go phone testing path | Builder / Architect | PHASE_4 | DONE | AC-001, AC-003, AC-005, AC-009, AC-010 | VALIDATION_REPORT.md |
+| T-012 | Decide production app-store packaging path | Architect | PHASE_4 | TODO | AC-010 | TBD |
 | T-FINAL | Final validation/handoff | Validator | PHASE_6 | TODO | All P0 | VALIDATION_REPORT.md |
 
 ## 4. Task Template

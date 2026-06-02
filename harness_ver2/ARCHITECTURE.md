@@ -10,9 +10,9 @@ Architecture must be small, boring, testable, recoverable, and aligned with the 
 
 ```txt
 Document status: DRAFT_READY_FOR_PLANNING
-Project type: Single-page frontend app or mobile-capable GUI app
+Project type: Single-page frontend app plus Expo mobile GUI app
 Architecture frozen: NO
-Validator decision: NOT_RUN
+Validator decision: PASS_WITH_ACCEPTED_SCOPE_LIMITS
 ```
 
 ## 2. Architecture Principle
@@ -31,14 +31,14 @@ Prefer one app or module over multiple services, local state over a database whe
 [ ] Frontend app with API routes
 [ ] Full-stack web app
 [ ] API-only service
-[ ] Mobile app
+[x] Mobile app
 [ ] Library/package
 [ ] Script/automation
 [ ] Documentation-only project
 [ ] Hybrid / other:
 ```
 
-If a mobile stack is selected later, keep the same domain model and interface contracts.
+The web shell and Expo mobile shell share the same domain model and interface contracts.
 
 ## 4. High-Level Architecture
 
@@ -56,6 +56,11 @@ User
 
 No backend, authentication, external AI provider, or external API is required for the MVP.
 
+The current implementation has two presentation shells:
+- `public/` is the lightweight mobile web demo.
+- `App.js` is the Expo / React Native shell for Expo Go phone testing.
+- `src/model.mjs` and `src/demoData.mjs` are shared by both shells.
+
 ## 5. ADR Summary
 
 | ADR ID | Decision | Status |
@@ -67,11 +72,14 @@ No backend, authentication, external AI provider, or external API is required fo
 | ADR-005 | Keep capture randomness deterministic in tests and controllable for demo | ACCEPTED |
 | ADR-006 | Use Pokemon only as a private-demo concept; plan original creatures before public release | ACCEPTED_WITH_RISK |
 | ADR-007 | Validate core loop before adding game economy or social systems | ACCEPTED |
+| ADR-008 | Add Expo Go as the first physical-phone testing path before production native binaries | ACCEPTED |
 
 ## 6. Module Responsibility Map
 
 | Module | Responsibility | Owner | Tests |
 |---|---|---|---|
+| Web Shell | Browser/mobile-web demo under `public/` | Builder | Build/Playwright/manual |
+| Expo Shell | Phone-test app under `App.js` | Builder | Expo export/Expo Go/manual |
 | Checklist UI | Show tasks/habits and completion toggles | Builder | Smoke/integration |
 | Candidate Preview UI | Show 2-3 likely silhouettes before wrap-up | Builder | Integration/manual |
 | Wrap-up UI | Summarize completed count and launch encounters | Builder | Integration/E2E |

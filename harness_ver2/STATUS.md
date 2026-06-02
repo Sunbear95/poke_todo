@@ -8,11 +8,11 @@ Live control panel for the agent harness. Keep this file current during active w
 
 ```txt
 Current phase: PHASE_5_VALIDATION_AND_REGRESSION
-Current task: MVP mobile web UI shell implemented and validated
+Current task: MVP Expo mobile app shell implemented and validated
 Implementation gate: OPEN_WITH_RISKS
 Validation state: PASS_WITH_RISKS
 Release readiness: NOT_READY
-Human input required: YES for asset/public-release strategy and native mobile packaging
+Human input required: YES for asset/public-release strategy and production mobile packaging
 Last updated: 2026-06-02
 ```
 
@@ -31,11 +31,17 @@ npm run build
 # Run
 npm run dev
 
+# Run on phone with Expo Go
+npm run mobile
+
+# Run on phone through an Expo tunnel
+npm run mobile:tunnel
+
 # Smoke check
 npm run smoke
 ```
 
-Current implementation is a local-first mobile web MVP shell with deterministic model tests.
+Current implementation is a local-first mobile web MVP shell plus an Expo Go mobile app shell sharing the deterministic model.
 
 ## 3. Gate Summary
 
@@ -49,7 +55,7 @@ Test plan ready: YES
 Validation evidence recorded: YES
 ```
 
-The local mobile web MVP is implemented and validated with model tests, smoke, build-check, and local server response. Native iOS/Android packaging remains open.
+The local mobile web MVP and Expo Go mobile app shell are implemented and validated with model tests, smoke, build-check, Expo dependency checks, Expo iOS/Android export, and local Metro response. Production app store packaging remains open.
 
 ## 4. Active Risks
 
@@ -71,8 +77,8 @@ The local mobile web MVP is implemented and validated with model tests, smoke, b
 ## 6. Next Action
 
 ```txt
-Next action: Review the mobile web MVP visually, then decide whether to package as native mobile via Expo/React Native or keep as PWA-style web.
+Next action: Review the MVP on a physical phone through Expo Go, then decide whether to build production iOS/Android binaries.
 Owner: Builder / Architect
-Blocked by: Asset/public-release strategy and native mobile packaging decision
-Required document update: ARCHITECTURE.md and TEST/TEST_PLAN.md if native packaging is selected
+Blocked by: Asset/public-release strategy and production mobile packaging decision
+Required document update: ARCHITECTURE.md and TEST/TEST_PLAN.md if app-store packaging is selected
 ```

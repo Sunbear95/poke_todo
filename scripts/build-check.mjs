@@ -1,6 +1,9 @@
 import { readFileSync } from "node:fs";
 
 const requiredFiles = [
+  "App.js",
+  "app.json",
+  "metro.config.cjs",
   "public/index.html",
   "public/styles.css",
   "public/app.mjs",

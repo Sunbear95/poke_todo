@@ -10,11 +10,11 @@ Fill this file before implementation work begins.
 
 ```txt
 Project name: Poke Todo
-Project type: Web / Mobile-capable app concept
+Project type: Web / Expo mobile app concept
 Primary language: JavaScript (ES modules)
-Framework/tooling: Node.js built-in test runner for the model layer
+Framework/tooling: Node.js built-in test runner, vanilla mobile web shell, Expo / React Native mobile shell
 Package manager: npm
-Runtime environment: Node.js >= 22 local-first model/test environment
+Runtime environment: Node.js >= 22 local-first model/test environment plus Expo Go for phone testing
 Repository path: /Users/jyoo/Documents/poke_todo
 ```
 
@@ -60,7 +60,7 @@ Performance constraints:
 - Current MVP has no special performance target beyond responsive UI.
 
 Deployment constraints:
-- Local demo/run path is sufficient until deployment is explicitly required.
+- Local web demo and Expo Go phone testing are sufficient until production app-store deployment is explicitly required.
 ```
 
 ## 4. Scope
@@ -124,6 +124,6 @@ The project is successful when:
 
 | QID | Question | Owner | Status | Answer |
 |---|---|---|---|---|
-| Q-001 | Which implementation stack should be used? | Human/Agent | CLOSED | JavaScript ES modules on Node.js >= 22 with npm and node:test for the MVP model layer |
+| Q-001 | Which implementation stack should be used? | Human/Agent | CLOSED | JavaScript ES modules on Node.js >= 22 with npm/node:test for the model layer, vanilla web UI for browser demo, and Expo/React Native for phone testing |
 | Q-002 | Should the MVP use real Pokemon assets or original placeholder creatures during implementation? | Human | OPEN | Private demo may use Pokemon conceptually; public release should avoid IP risk |
-| Q-003 | Is deployment required, or is a local demo enough? | Human | OPEN | Local demo is enough until deployment is requested |
+| Q-003 | Is deployment required, or is a local demo enough? | Human | OPEN | Local web demo and Expo Go phone testing are enough until production deployment is requested |

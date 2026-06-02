@@ -1,0 +1,20 @@
+{
+  "expo": {
+    "name": "Poke Todo",
+    "slug": "poke-todo",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "poketodo",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#f7f9f8",
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "edgeToEdgeEnabled": true
+    },
+    "extra": {
+      "mvp": "completion-driven creature encounter demo"
+    }
+  }
+}
