@@ -38,6 +38,32 @@ test("checking and unchecking a todo updates completed count", () => {
   assert.equal(unchecked.data.completedCount, 0);
 });
 
+test("checking a habit increases its combo streak", () => {
+  const state = createInitialState({
+    todos: [
+      {
+        ...demoTodos[0],
+        kind: "habit",
+        habitStreak: { current: 4, best: 6, lastCompletedDate: "2026-06-01" },
+      },
+    ],
+    creatures: demoCreatures,
+  });
+
+  const checked = toggleChecklistItem({
+    todos: state.todos,
+    todoId: "study-30",
+    completed: true,
+    now: "2026-06-02T10:00:00.000Z",
+  });
+
+  assert.equal(checked.ok, true);
+  const habit = checked.data.todos[0];
+  assert.equal(habit.habitStreak.current, 5);
+  assert.equal(habit.habitStreak.best, 6);
+  assert.equal(habit.habitStreak.lastCompletedDate, "2026-06-02");
+});
+
 test("unknown todo returns a controlled error", () => {
   const result = toggleChecklistItem({
     todos: demoTodos,
@@ -61,6 +87,30 @@ test("candidate selection returns 2-3 non-guaranteed silhouettes", () => {
   assert.equal(result.data.candidates.every((candidate) => candidate.silhouette), true);
   assert.equal(result.data.candidates.every((candidate) => !candidate.guaranteed), true);
   assert.equal(result.data.candidates.every((candidate) => candidate.previewOnly), true);
+});
+
+test("habit combo boosts the selected candidate appearance chance", () => {
+  const habit = {
+    ...demoTodos[0],
+    kind: "habit",
+    habitStreak: { current: 8, best: 8, lastCompletedDate: "2026-06-01" },
+    preferredCreatureId: "eevee",
+  };
+  const result = selectCandidateCreatures({
+    completedCount: 1,
+    creatures: demoCreatures,
+    captureProgress: [],
+    todo: habit,
+  });
+
+  assert.equal(result.ok, true);
+  const selected = result.data.candidates.find((candidate) => candidate.id === "eevee");
+  assert.equal(selected.selected, true);
+  assert.equal(selected.comboDays, 8);
+  assert.equal(
+    selected.appearanceChance > 1 / result.data.candidates.length,
+    true
+  );
 });
 
 test("candidate selection shows no rewards before progress", () => {

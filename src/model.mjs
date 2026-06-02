@@ -1,6 +1,8 @@
 const BASE_CAPTURE_CHANCE = 0.2;
 const REPEAT_CAPTURE_BONUS = 0.15;
 const MAX_CAPTURE_CHANCE = 0.85;
+const HABIT_APPEARANCE_BONUS = 0.35;
+const MAX_HABIT_APPEARANCE_BONUS = 4.2;
 const RARITY_WEIGHT = {
   common: 3,
   uncommon: 2,
@@ -37,10 +39,15 @@ export function toggleChecklistItem({ todos, todoId, completed, now = nowIso() }
 
   const updatedTodos = todos.map((todo) => {
     if (todo.id !== todoId) return { ...todo };
+    const habitStreak =
+      todo.kind === "habit"
+        ? nextHabitStreak({ todo, completed, now })
+        : todo.habitStreak;
     return {
       ...todo,
       completed,
       completedAt: completed ? now : undefined,
+      ...(habitStreak ? { habitStreak } : {}),
     };
   });
 
@@ -54,6 +61,8 @@ export function selectCandidateCreatures({
   completedCount,
   captureProgress = [],
   creatures,
+  todo,
+  preferredCreatureId,
   limit = 3,
 }) {
   const validation = validateCreatures(creatures);
@@ -67,8 +76,11 @@ export function selectCandidateCreatures({
   const progressByCreature = new Map(
     captureProgress.map((progress) => [progress.creatureId, progress])
   );
+  const selectedCreatureId = preferredCreatureId ?? todo?.preferredCreatureId;
+  const streakDays = habitStreakFor(todo);
+  const preferenceBonus = habitPreferenceBonus(streakDays);
 
-  const candidates = creatures
+  const ranked = creatures
     .map((creature, index) => {
       const progress = progressByCreature.get(creature.id);
       const encounterCount = progress?.encounterCount ?? 0;
@@ -78,11 +90,24 @@ export function selectCandidateCreatures({
           (RARITY_WEIGHT[creature.rarity] ?? 1) * 10 +
           encounterCount * 3 +
           ((completedCount + index) % 3),
+        appearanceWeight: appearanceWeightFor({
+          creature,
+          progress,
+          selectedCreatureId,
+          preferenceBonus,
+        }),
       };
     })
-    .sort((a, b) => b.score - a.score || a.creature.id.localeCompare(b.creature.id))
-    .slice(0, candidateLimit)
-    .map(({ creature }) => ({
+    .sort((a, b) => b.score - a.score || a.creature.id.localeCompare(b.creature.id));
+
+  let selected = ranked.slice(0, candidateLimit);
+  if (selectedCreatureId && !selected.some((item) => item.creature.id === selectedCreatureId)) {
+    const preferred = ranked.find((item) => item.creature.id === selectedCreatureId);
+    if (preferred) selected = [...selected.slice(0, candidateLimit - 1), preferred];
+  }
+
+  const totalWeight = selected.reduce((sum, item) => sum + item.appearanceWeight, 0);
+  const candidates = selected.map(({ creature, appearanceWeight }) => ({
       id: creature.id,
       name: creature.name,
       imageUrl: creature.imageUrl,
@@ -90,9 +115,12 @@ export function selectCandidateCreatures({
       previewOnly: true,
       guaranteed: false,
       silhouette: true,
+      selected: creature.id === selectedCreatureId,
+      appearanceChance: totalWeight > 0 ? appearanceWeight / totalWeight : 0,
+      comboDays: streakDays,
     }));
 
-  return success({ candidates });
+  return success({ candidates, comboDays: streakDays, preferenceBonus });
 }
 
 export function startDailyWrapUp({
@@ -235,11 +263,58 @@ function selectEncounterCreature({ creatures, todo, index, progressByCreature })
       const progress = progressByCreature.get(creature.id);
       return {
         creature,
-        weight: (RARITY_WEIGHT[creature.rarity] ?? 1) + (progress?.encounterCount ?? 0),
+        weight: appearanceWeightFor({
+          creature,
+          progress,
+          selectedCreatureId: todo.preferredCreatureId,
+          preferenceBonus: habitPreferenceBonus(habitStreakFor(todo)),
+        }),
       };
     })
     .sort((a, b) => b.weight - a.weight || a.creature.id.localeCompare(b.creature.id));
-  return weighted[seed % weighted.length].creature;
+  const totalWeight = weighted.reduce((sum, item) => sum + item.weight, 0);
+  let bucket = seed % Math.max(1, Math.round(totalWeight * 100));
+  for (const item of weighted) {
+    bucket -= Math.round(item.weight * 100);
+    if (bucket < 0) return item.creature;
+  }
+  return weighted[0].creature;
+}
+
+function nextHabitStreak({ todo, completed, now }) {
+  const current = habitStreakFor(todo);
+  if (completed) {
+    return {
+      current: current + 1,
+      best: Math.max(todo.habitStreak?.best ?? 0, current + 1),
+      lastCompletedDate: now.slice(0, 10),
+    };
+  }
+  return {
+    current: Math.max(0, current - (todo.completed ? 1 : 0)),
+    best: todo.habitStreak?.best ?? current,
+    lastCompletedDate: todo.habitStreak?.lastCompletedDate,
+  };
+}
+
+function habitStreakFor(todo) {
+  if (todo?.kind !== "habit") return 0;
+  return Math.max(0, todo.habitStreak?.current ?? todo.streakDays ?? 0);
+}
+
+function habitPreferenceBonus(streakDays) {
+  return Math.min(MAX_HABIT_APPEARANCE_BONUS, streakDays * HABIT_APPEARANCE_BONUS);
+}
+
+function appearanceWeightFor({
+  creature,
+  progress,
+  selectedCreatureId,
+  preferenceBonus = 0,
+}) {
+  const baseWeight =
+    (RARITY_WEIGHT[creature.rarity] ?? 1) + (progress?.encounterCount ?? 0);
+  return creature.id === selectedCreatureId ? baseWeight + preferenceBonus : baseWeight;
 }
 
 function validateCreatures(creatures) {

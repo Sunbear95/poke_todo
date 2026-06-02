@@ -15,6 +15,11 @@ const categoryMeta = {
   hobby: { label: "취미", tone: "violet", icon: sparkleIcon },
 };
 
+const kindMeta = {
+  habit: { label: "습관", tone: "green" },
+  task: { label: "오늘 할일", tone: "blue" },
+};
+
 const taskMeta = {
   "study-30": {
     title: "러닝 20분",
@@ -72,8 +77,21 @@ function loadState() {
   }
 
   const seededTodos = [
-    { ...demoTodos[1], ...taskMeta.workout, id: "workout", completed: true, completedAt: "2026-06-02T10:00:00.000Z" },
-    { ...demoTodos[0], ...taskMeta["study-30"], id: "study-30" },
+    {
+      ...demoTodos[1],
+      ...taskMeta.workout,
+      id: "workout",
+      completed: true,
+      completedAt: "2026-06-02T10:00:00.000Z",
+      habitStreak: { current: 6, best: 9, lastCompletedDate: "2026-06-01" },
+      preferredCreatureId: "bulbasaur",
+    },
+    {
+      ...demoTodos[0],
+      ...taskMeta["study-30"],
+      id: "study-30",
+      habitStreak: { current: 3, best: 4, lastCompletedDate: "2026-06-01" },
+    },
     { ...demoTodos[2], ...taskMeta["project-review"], id: "project-review" },
     ...extraTodos,
   ];
@@ -168,6 +186,8 @@ function detailTemplate() {
   const todo = state.todos.find((item) => item.id === selectedTodoId) ?? state.todos[0];
   const meta = taskMeta[todo.id] ?? taskMeta["study-30"];
   const category = categoryMeta[meta.category];
+  const kind = kindMeta[todo.kind] ?? kindMeta.task;
+  const comboDays = habitComboDays(todo);
   const candidates = getCandidates();
 
   return `
@@ -184,13 +204,27 @@ function detailTemplate() {
           <button class="check-box ${todo.completed ? "checked" : ""}" data-action="toggle" data-id="${todo.id}" aria-label="완료">
             ${todo.completed ? checkIcon() : ""}
           </button>
-          <h2>${meta.title}</h2>
+          <div class="title-stack">
+            <h2>${meta.title}</h2>
+            <span class="kind-badge ${kind.tone}">${kind.label}</span>
+          </div>
         </div>
         <div class="info-grid">
           <span class="goal-label">${targetIcon()} 오늘의 목표</span>
           <span>${meta.goal}</span>
           <span class="tag ${category.tone}">${category.icon()} ${category.label}</span>
         </div>
+        ${
+          todo.kind === "habit"
+            ? `<section class="combo-panel">
+                <div>
+                  <span>습관 콤보</span>
+                  <strong>${comboDays}일 연속</strong>
+                </div>
+                <p>후보 포켓몬을 탭하면 콤보가 높을수록 그 포켓몬의 출현 확률이 올라가요.</p>
+              </section>`
+            : ""
+        }
         <hr />
         <section class="memo-block">
           <h3>${noteIcon()} 메모</h3>
@@ -200,7 +234,7 @@ function detailTemplate() {
 
       <section class="monster-preview">
         <h2>${monsterBadgeIcon()} 만날 수 있는 몬스터 <span class="hint">?</span></h2>
-        <p>완료하면 몬스터를 만날 수 있어요!</p>
+        <p>${todo.kind === "habit" ? "원하는 후보를 탭해 콤보 보너스를 걸어보세요." : "완료하면 몬스터를 만날 수 있어요!"}</p>
         <div class="candidate-grid">
           ${candidates.map(candidateCardTemplate).join("")}
         </div>
@@ -271,26 +305,31 @@ function collectionTemplate() {
 function todoRowTemplate(todo) {
   const meta = taskMeta[todo.id] ?? todo;
   const category = categoryMeta[meta.category] ?? categoryMeta.hobby;
+  const kind = kindMeta[todo.kind] ?? kindMeta.task;
   return `
     <article class="task-row" data-action="detail" data-id="${todo.id}" tabindex="0">
       <button class="check-box ${todo.completed ? "checked" : ""}" data-action="toggle" data-id="${todo.id}" aria-label="완료">
         ${todo.completed ? checkIcon() : ""}
       </button>
-      <strong>${meta.title}</strong>
+      <div class="task-title">
+        <strong>${meta.title}</strong>
+        <span class="kind-badge ${kind.tone}">${kind.label}</span>
+      </div>
       <span class="tag ${category.tone}">${category.icon()} ${category.label}</span>
     </article>
   `;
 }
 
 function candidateCardTemplate(candidate, index) {
-  const chances = [30, 50, 20];
+  const chance = Math.round(candidate.appearanceChance * 100);
   return `
-    <article class="candidate-card">
+    <button class="candidate-card ${candidate.selected ? "selected" : ""}" data-action="select-preference" data-id="${candidate.id}">
       <div class="sprite-ground">
         <img class="sprite silhouette" src="${candidate.imageUrl}" alt="실루엣 후보 ${index + 1}" />
       </div>
-      <span>발견 확률 ${chances[index] ?? 30}%</span>
-    </article>
+      <strong>${candidate.selected ? "선택됨" : "탭해서 선택"}</strong>
+      <span>출현 확률 ${chance}%</span>
+    </button>
   `;
 }
 
@@ -354,6 +393,11 @@ function handleAction(action, id) {
     render();
     return;
   }
+  if (action === "select-preference") {
+    selectPreferredCreature(id);
+    render();
+    return;
+  }
   if (action === "wrap") {
     startWrap();
     render();
@@ -392,6 +436,18 @@ function toggleTodo(todoId) {
       ...state.dailySession,
       completedCount: result.data.completedCount,
     },
+  };
+  saveState();
+}
+
+function selectPreferredCreature(creatureId) {
+  const todo = state.todos.find((item) => item.id === selectedTodoId);
+  if (!todo || todo.kind !== "habit") return;
+  state = {
+    ...state,
+    todos: state.todos.map((item) =>
+      item.id === todo.id ? { ...item, preferredCreatureId: creatureId } : { ...item }
+    ),
   };
   saveState();
 }
@@ -443,12 +499,19 @@ function capture(encounterId) {
 }
 
 function getCandidates() {
+  const todo = state.todos.find((item) => item.id === selectedTodoId);
   const result = selectCandidateCreatures({
     completedCount: Math.max(1, state.dailySession.completedCount),
     creatures: state.creatures,
     captureProgress: state.captureProgress,
+    todo,
   });
   return result.ok ? result.data.candidates : [];
+}
+
+function habitComboDays(todo) {
+  if (todo?.kind !== "habit") return 0;
+  return Math.max(0, todo.habitStreak?.current ?? todo.streakDays ?? 0);
 }
 
 function creatureById(id) {
