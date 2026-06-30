@@ -8,9 +8,11 @@ import {
   StyleSheet,
   StatusBar,
   Text,
+  TextInput,
   View,
 } from "react-native";
 import {
+  addTodoItem,
   attemptCapture,
   captureChanceFor,
   createInitialState,
@@ -90,6 +92,22 @@ const initialCaptureProgress = [
   },
 ];
 
+const KIND_OPTIONS = [
+  { value: "task", label: "할 일" },
+  { value: "habit", label: "습관" },
+];
+
+const CATEGORY_OPTIONS = [
+  { value: "health", label: "건강", color: "green", icon: "heart-pulse" },
+  { value: "exercise", label: "운동", color: "blue", icon: "shoe-sneaker" },
+  { value: "study", label: "공부", color: "blue", icon: "book-open-page-variant-outline" },
+  { value: "hobby", label: "취미", color: "violet", icon: "creation-outline" },
+];
+
+const CATEGORY_META = Object.fromEntries(
+  CATEGORY_OPTIONS.map((option) => [option.value, option])
+);
+
 export default function App() {
   const [screen, setScreen] = useState("today");
   const [selectedTodoId, setSelectedTodoId] = useState("run");
@@ -104,11 +122,37 @@ export default function App() {
     if (!result.ok) return;
     setState((current) => ({
       ...current,
-      todos: result.todos,
+      todos: result.data.todos,
       dailySession: {
         ...current.dailySession,
-        completedCount: result.completedCount,
+        completedCount: result.data.completedCount,
       },
+    }));
+  }
+
+  function addTodo({ title, kind, category }) {
+    const result = addTodoItem({ todos: state.todos, title, kind, category });
+    if (!result.ok) return result;
+    setState((current) => ({
+      ...current,
+      todos: result.data.todos,
+      dailySession: {
+        ...current.dailySession,
+        completedCount: result.data.completedCount,
+      },
+    }));
+    setScreen("today");
+    return result;
+  }
+
+  function selectPreferred(creatureId) {
+    setState((current) => ({
+      ...current,
+      todos: current.todos.map((todo) =>
+        todo.id === selectedTodoId && todo.kind === "habit"
+          ? { ...todo, preferredCreatureId: creatureId }
+          : { ...todo }
+      ),
     }));
   }
 
@@ -126,11 +170,11 @@ export default function App() {
     if (!result.ok) return;
     setState((current) => ({
       ...current,
-      encounters: result.encounters,
-      captureProgress: result.captureProgress,
+      encounters: result.data.encounters,
+      captureProgress: result.data.captureProgress,
       dailySession: {
         ...current.dailySession,
-        ...result.dailySession,
+        ...result.data.dailySession,
       },
     }));
     setScreen("wrap");
@@ -147,8 +191,8 @@ export default function App() {
     if (!result.ok) return;
     setState((current) => ({
       ...current,
-      encounters: result.encounters,
-      collection: result.collection,
+      encounters: result.data.encounters,
+      collection: result.data.collection,
     }));
   }
 
@@ -161,7 +205,12 @@ export default function App() {
           onOpenDetail={openDetail}
           onToggle={toggleTodo}
           onWrapUp={beginWrapUp}
+          onAdd={() => setScreen("add")}
+          onCollection={() => setScreen("collection")}
         />
+      )}
+      {screen === "add" && (
+        <AddScreen onBack={() => setScreen("today")} onAdd={addTodo} />
       )}
       {screen === "detail" && selectedTodo && (
         <DetailScreen
@@ -169,6 +218,7 @@ export default function App() {
           todo={selectedTodo}
           onBack={() => setScreen("today")}
           onToggle={toggleTodo}
+          onSelectPreferred={selectPreferred}
         />
       )}
       {screen === "wrap" && (
@@ -176,13 +226,17 @@ export default function App() {
           state={state}
           onCapture={captureEncounter}
           onDone={() => setScreen("today")}
+          onCollection={() => setScreen("collection")}
         />
+      )}
+      {screen === "collection" && (
+        <CollectionScreen state={state} onBack={() => setScreen("today")} />
       )}
     </SafeAreaView>
   );
 }
 
-function TodayScreen({ state, onOpenDetail, onToggle, onWrapUp }) {
+function TodayScreen({ state, onOpenDetail, onToggle, onWrapUp, onAdd, onCollection }) {
   const completedCount = state.todos.filter((todo) => todo.completed).length;
 
   return (
@@ -193,7 +247,13 @@ function TodayScreen({ state, onOpenDetail, onToggle, onWrapUp }) {
           <Text style={styles.dateText}>6월 2일 (화)</Text>
           <Text style={styles.title}>오늘의 기록</Text>
         </View>
-        <CircleIcon name="face-man-profile" compact />
+        <Pressable
+          style={[styles.circleButton, styles.compactCircle]}
+          onPress={onCollection}
+          accessibilityLabel="컬렉션 보기"
+        >
+          <MaterialCommunityIcons name="bag-personal-outline" size={28} color="#39a24d" />
+        </Pressable>
       </View>
 
       <View style={styles.taskList}>
@@ -205,6 +265,10 @@ function TodayScreen({ state, onOpenDetail, onToggle, onWrapUp }) {
             onToggle={() => onToggle(todo.id, !todo.completed)}
           />
         ))}
+        <Pressable style={styles.addRow} onPress={onAdd}>
+          <MaterialCommunityIcons name="plus-circle-outline" size={28} color="#39a24d" />
+          <Text style={styles.addRowText}>할 일 추가</Text>
+        </Pressable>
       </View>
 
       <View style={styles.partnerStage}>
@@ -234,7 +298,7 @@ function TodayScreen({ state, onOpenDetail, onToggle, onWrapUp }) {
   );
 }
 
-function DetailScreen({ state, todo, onBack, onToggle }) {
+function DetailScreen({ state, todo, onBack, onToggle, onSelectPreferred }) {
   const candidates = useMemo(() => {
     const result = selectCandidateCreatures({
       completedCount: Math.max(1, state.dailySession.completedCount),
@@ -242,8 +306,9 @@ function DetailScreen({ state, todo, onBack, onToggle }) {
       creatures: state.creatures,
       todo,
     });
-    return result.ok ? result.candidates : [];
+    return result.ok ? result.data.candidates : [];
   }, [state.captureProgress, state.creatures, state.dailySession.completedCount, todo]);
+  const isHabit = todo.kind === "habit";
 
   return (
     <Screen>
@@ -280,21 +345,35 @@ function DetailScreen({ state, todo, onBack, onToggle }) {
         <MaterialCommunityIcons name="alien-outline" size={24} color="#39a24d" />
         <Text style={styles.sectionTitle}>만날 수 있는 몬스터</Text>
       </View>
-      <Text style={styles.previewHint}>완료하면 몬스터를 만날 수 있어요!</Text>
+      <Text style={styles.previewHint}>
+        {isHabit
+          ? "탭해서 콤보로 키울 선호 몬스터를 골라보세요!"
+          : "완료하면 몬스터를 만날 수 있어요!"}
+      </Text>
       <View style={styles.candidateGrid}>
         {candidates.map((candidate) => (
-          <View key={candidate.id} style={styles.candidateCard}>
+          <Pressable
+            key={candidate.id}
+            style={[styles.candidateCard, candidate.selected && styles.candidateSelected]}
+            onPress={() => isHabit && onSelectPreferred(candidate.id)}
+            disabled={!isHabit}
+          >
             <Image
               source={{ uri: candidate.imageUrl }}
               style={styles.silhouette}
               resizeMode="contain"
             />
+            {isHabit && (
+              <Text style={[styles.selectHint, candidate.selected && styles.selectHintOn]}>
+                {candidate.selected ? "선택됨" : "탭해서 선택"}
+              </Text>
+            )}
             <View style={styles.chancePill}>
               <Text style={styles.chanceText}>
                 발견 확률 {Math.round(candidate.appearanceChance * 100)}%
               </Text>
             </View>
-          </View>
+          </Pressable>
         ))}
       </View>
 
@@ -308,7 +387,7 @@ function DetailScreen({ state, todo, onBack, onToggle }) {
   );
 }
 
-function WrapScreen({ state, onCapture, onDone }) {
+function WrapScreen({ state, onCapture, onDone, onCollection }) {
   const pending = state.encounters.find((encounter) => encounter.status === "pending");
   const activeEncounter = pending ?? state.encounters[state.encounters.length - 1];
   const creature = state.creatures.find((item) => item.id === activeEncounter?.creatureId);
@@ -350,13 +429,139 @@ function WrapScreen({ state, onCapture, onDone }) {
           return (
             <View key={encounter.id} style={styles.encounterChip}>
               <Text style={styles.encounterChipText}>
-                {item?.name ?? "Unknown"} · {encounter.status}
+                {item?.name ?? "Unknown"} · {encounterStatusLabel(encounter.status)}
               </Text>
             </View>
           );
         })}
       </View>
+      <SecondaryButton label="컬렉션 보기" onPress={onCollection} />
     </Screen>
+  );
+}
+
+function AddScreen({ onBack, onAdd }) {
+  const [title, setTitle] = useState("");
+  const [kind, setKind] = useState("task");
+  const [category, setCategory] = useState("hobby");
+  const [error, setError] = useState("");
+
+  function submit() {
+    const result = onAdd({ title, kind, category });
+    if (result && !result.ok) {
+      setError(result.error?.message ?? "할 일을 추가하지 못했어요.");
+    }
+  }
+
+  return (
+    <Screen>
+      <View style={styles.detailHeader}>
+        <Pressable style={styles.circleButton} onPress={onBack}>
+          <MaterialCommunityIcons name="arrow-left" size={28} color="#39a24d" />
+        </Pressable>
+        <Text style={styles.detailTitle}>할 일 추가</Text>
+        <View />
+      </View>
+
+      <View style={styles.detailCard}>
+        <Text style={styles.infoLabel}>무엇을 할까요?</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="예: 물 2L 마시기"
+          placeholderTextColor="#9aa6b2"
+          value={title}
+          onChangeText={(value) => {
+            setTitle(value);
+            if (error) setError("");
+          }}
+          maxLength={80}
+          returnKeyType="done"
+          onSubmitEditing={submit}
+        />
+
+        <Text style={[styles.infoLabel, styles.fieldSpacer]}>종류</Text>
+        <View style={styles.choiceRow}>
+          {KIND_OPTIONS.map((option) => (
+            <Choice
+              key={option.value}
+              label={option.label}
+              active={kind === option.value}
+              onPress={() => setKind(option.value)}
+            />
+          ))}
+        </View>
+
+        <Text style={[styles.infoLabel, styles.fieldSpacer]}>카테고리</Text>
+        <View style={styles.choiceRow}>
+          {CATEGORY_OPTIONS.map((option) => (
+            <Choice
+              key={option.value}
+              label={option.label}
+              active={category === option.value}
+              onPress={() => setCategory(option.value)}
+            />
+          ))}
+        </View>
+
+        {error ? <Text style={styles.errorText}>{error}</Text> : null}
+      </View>
+
+      <PrimaryButton label="추가하기" onPress={submit} />
+    </Screen>
+  );
+}
+
+function CollectionScreen({ state, onBack }) {
+  const caughtCount = state.collection.length;
+
+  return (
+    <Screen>
+      <View style={styles.detailHeader}>
+        <Pressable style={styles.circleButton} onPress={onBack}>
+          <MaterialCommunityIcons name="arrow-left" size={28} color="#39a24d" />
+        </Pressable>
+        <Text style={styles.detailTitle}>컬렉션</Text>
+        <View />
+      </View>
+      <Text style={styles.previewHint}>
+        {caughtCount} / {state.creatures.length} 마리를 만났어요.
+      </Text>
+      <View style={styles.collectionGrid}>
+        {state.creatures.map((creature) => {
+          const caught = state.collection.some((entry) => entry.creatureId === creature.id);
+          return (
+            <View key={creature.id} style={styles.collectionCard}>
+              <Image
+                source={{ uri: creature.imageUrl }}
+                style={[styles.collectionSprite, !caught && styles.collectionDim]}
+                resizeMode="contain"
+              />
+              <Text style={styles.collectionName}>{caught ? creature.name : "???"}</Text>
+              <Text style={styles.collectionStatus}>{caught ? "포획 완료" : "미발견"}</Text>
+            </View>
+          );
+        })}
+      </View>
+    </Screen>
+  );
+}
+
+function Choice({ label, active, onPress }) {
+  return (
+    <Pressable
+      style={[styles.choice, active && styles.choiceActive]}
+      onPress={onPress}
+    >
+      <Text style={[styles.choiceText, active && styles.choiceTextActive]}>{label}</Text>
+    </Pressable>
+  );
+}
+
+function SecondaryButton({ label, onPress }) {
+  return (
+    <Pressable style={styles.secondaryButton} onPress={onPress}>
+      <Text style={styles.secondaryButtonText}>{label}</Text>
+    </Pressable>
   );
 }
 
@@ -371,10 +576,14 @@ function TaskRow({ todo, onPress, onToggle }) {
 }
 
 function Tag({ todo }) {
+  const meta = CATEGORY_META[todo.category];
+  const color = todo.color ?? meta?.color ?? "green";
+  const icon = todo.icon ?? meta?.icon ?? "tag-outline";
+  const label = todo.color ? todo.category : meta?.label ?? todo.category;
   return (
-    <View style={[styles.tag, styles[`${todo.color}Tag`]]}>
-      <MaterialCommunityIcons name={todo.icon} size={21} color={tagColor(todo.color)} />
-      <Text style={[styles.tagText, { color: tagColor(todo.color) }]}>{todo.category}</Text>
+    <View style={[styles.tag, styles[`${color}Tag`]]}>
+      <MaterialCommunityIcons name={icon} size={21} color={tagColor(color)} />
+      <Text style={[styles.tagText, { color: tagColor(color) }]}>{label}</Text>
     </View>
   );
 }
@@ -445,6 +654,12 @@ function tagColor(color) {
   if (color === "blue") return "#1677f2";
   if (color === "violet") return "#6651d8";
   return "#21823a";
+}
+
+function encounterStatusLabel(status) {
+  if (status === "caught") return "포획";
+  if (status === "escaped") return "도망";
+  return "대기";
 }
 
 function stableRandom(value) {
@@ -812,6 +1027,129 @@ const styles = StyleSheet.create({
   chanceText: {
     color: "#21823a",
     fontSize: 12,
+    fontWeight: "800",
+  },
+  candidateSelected: {
+    borderColor: "#39a24d",
+    borderWidth: 2,
+  },
+  selectHint: {
+    color: "#6f7b88",
+    fontSize: 12,
+    fontWeight: "800",
+    marginTop: 6,
+  },
+  selectHintOn: {
+    color: "#21823a",
+  },
+  addRow: {
+    alignItems: "center",
+    backgroundColor: "rgba(57,162,77,0.08)",
+    borderColor: "#bfe0c6",
+    borderRadius: 16,
+    borderStyle: "dashed",
+    borderWidth: 2,
+    flexDirection: "row",
+    gap: 14,
+    justifyContent: "center",
+    minHeight: 64,
+    padding: 18,
+  },
+  addRowText: {
+    color: "#21823a",
+    fontSize: 20,
+    fontWeight: "800",
+  },
+  input: {
+    backgroundColor: "#fff",
+    borderColor: "#d7dee4",
+    borderRadius: 14,
+    borderWidth: 1,
+    color: "#132232",
+    fontSize: 18,
+    marginTop: 12,
+    minHeight: 54,
+    paddingHorizontal: 16,
+  },
+  fieldSpacer: {
+    marginTop: 22,
+  },
+  choiceRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+    marginTop: 12,
+  },
+  choice: {
+    backgroundColor: "#fff",
+    borderColor: "#d7dee4",
+    borderRadius: 999,
+    borderWidth: 1,
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+  },
+  choiceActive: {
+    backgroundColor: "#39a24d",
+    borderColor: "#39a24d",
+  },
+  choiceText: {
+    color: "#677483",
+    fontSize: 16,
+    fontWeight: "800",
+  },
+  choiceTextActive: {
+    color: "#fff",
+  },
+  errorText: {
+    color: "#d6453c",
+    fontSize: 15,
+    fontWeight: "700",
+    marginTop: 16,
+  },
+  collectionGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 12,
+    marginTop: 18,
+  },
+  collectionCard: {
+    alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.9)",
+    borderRadius: 16,
+    paddingVertical: 16,
+    width: "47%",
+  },
+  collectionSprite: {
+    height: 96,
+    width: 96,
+  },
+  collectionDim: {
+    opacity: 0.4,
+    tintColor: "#24373b",
+  },
+  collectionName: {
+    color: "#132232",
+    fontSize: 18,
+    fontWeight: "800",
+    marginTop: 8,
+  },
+  collectionStatus: {
+    color: "#6f7b88",
+    fontSize: 14,
+    marginTop: 2,
+  },
+  secondaryButton: {
+    alignItems: "center",
+    backgroundColor: "#edf7ef",
+    borderRadius: 18,
+    justifyContent: "center",
+    marginTop: 18,
+    minHeight: 54,
+    width: "100%",
+  },
+  secondaryButtonText: {
+    color: "#21823a",
+    fontSize: 20,
     fontWeight: "800",
   },
   rewardStrip: {
