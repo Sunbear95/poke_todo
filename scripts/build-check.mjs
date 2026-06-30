@@ -4,9 +4,6 @@ const requiredFiles = [
   "App.js",
   "app.json",
   "metro.config.cjs",
-  "public/index.html",
-  "public/styles.css",
-  "public/app.mjs",
   "src/model.mjs",
   "src/demoData.mjs",
 ];

@@ -28,6 +28,5 @@ Poke Todo는 매일의 할 일과 습관 완료를 포켓몬 스타일의 만남
 - `harness_ver2/TEST/TEST_PLAN.md`
 - `harness_ver2/VALIDATION/VALIDATION_REPORT.md`
 - `src/model.mjs`
-- `public/app.mjs`
 - `App.js`
 - `test/model.test.mjs`

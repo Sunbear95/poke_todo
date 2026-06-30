@@ -5,34 +5,31 @@
 | 구분 | 사용 기술 |
 |---|---|
 | 언어 | JavaScript ES Modules |
-| 런타임 | Node.js 22 이상 |
-| 웹 데모 | Vanilla HTML/CSS/JS |
-| 모바일 셸 | Expo / React Native |
+| 런타임 | Node.js 22 이상 (모델·테스트), Expo (앱 실행) |
+| 모바일 앱 | Expo / React Native |
 | 테스트 | Node.js 내장 테스트 러너 |
-| 저장소 | 브라우저 `localStorage` 기반 로컬 데모 상태 |
+| 저장소 | 메모리 기반 React 상태 (로컬 데모) |
 
 ## 코드 구조
 
 ```txt
 poke_todo/
   App.js
+  app.json
+  metro.config.cjs
   src/
     model.mjs
     demoData.mjs
-  public/
-    index.html
-    app.mjs
-    styles.css
   test/
     model.test.mjs
+    smoke.mjs
   scripts/
-    serve.mjs
     build-check.mjs
 ```
 
 ## 공통 모델 레이어
 
-핵심 비즈니스 로직은 `src/model.mjs`에 모아 두었다. 웹 데모와 Expo 앱은 같은 모델 함수를 사용하므로, UI가 달라도 보상 규칙은 일관된다.
+핵심 비즈니스 로직은 `src/model.mjs`에 모아 두었다. Expo 앱과 모델 테스트가 같은 모델 함수를 사용하므로, UI와 무관하게 보상 규칙이 일관된다.
 
 주요 함수는 다음과 같다.
 
@@ -81,15 +78,11 @@ poke_todo/
 
 테스트에서는 `randomValue`를 직접 주입할 수 있게 해서 성공/실패를 결정적으로 검증한다. 데모 UI에서는 만남 ID를 기반으로 안정적인 난수를 만들어 같은 데모 흐름을 재현하기 쉽게 했다.
 
-## 웹 데모 구현
-
-`public/app.mjs`는 브라우저에서 실행되는 모바일 웹 UI다. 주요 화면은 오늘의 기록, 상세, 하루 마감, 컬렉션으로 나뉜다.
-
-웹 데모는 `localStorage`에 상태를 저장하므로 새로고침 후에도 데모 진행 상태가 유지된다. 컬렉션 화면에는 데모 초기화 버튼도 있다.
-
 ## Expo 앱 구현
 
-`App.js`는 React Native 컴포넌트로 모바일 앱 셸을 구현한다. 모델 레이어는 웹과 공유하고, 화면은 오늘의 기록, 상세, 하루 마감 중심으로 구성되어 있다.
+`App.js`는 React Native 컴포넌트로 모바일 앱 셸을 구현하며, 이 프로젝트의 유일한 실행 앱이다. 모델 레이어(`src/model.mjs`)를 그대로 사용하므로 UI와 보상 규칙이 분리되어 있다.
+
+화면은 오늘의 기록, 할 일 상세, 하루 마감을 중심으로 구성되어 있고, 포획 결과를 모아 보는 컬렉션 화면과 사용자가 직접 할 일을 추가하는 흐름을 이어서 보강한다. 상태는 메모리 기반 React 상태로 관리하며, Expo Go로 실제 휴대폰에서 바로 실행할 수 있다.
 
 ## 설계상 중요한 선택
 
