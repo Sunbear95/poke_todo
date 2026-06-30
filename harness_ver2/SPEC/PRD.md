@@ -110,7 +110,7 @@ SPEC/DATA_MODEL.md
 
 | QID | Question | Impact | Status | Answer |
 |---|---|---|---|---|
-| Q-001 | Implementation stack | HIGH | OPEN | TBD |
+| Q-001 | Implementation stack | HIGH | CLOSED | JavaScript ES modules on Node.js >= 22 with npm and node:test for the MVP model layer |
 | Q-002 | Asset strategy for private demo vs public release | MEDIUM | OPEN | Pokemon concept is acceptable for private demo; original creatures safer for public release |
 | Q-003 | Deployment target | LOW | OPEN | Local-first unless requested |
 

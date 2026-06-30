@@ -11,8 +11,8 @@ A task, feature, test, build, or release is not valid unless this file records w
 ```txt
 Document status: DRAFT
 Current validator: Validator
-Current validation phase: NOT_STARTED
-Final validator decision: NOT_RUN
+Current validation phase: MODEL_WEB_AND_EXPO_SHELL_VALIDATED
+Final validator decision: PASS_WITH_ACCEPTED_SCOPE_LIMITS
 ```
 
 ## 2. Validator Authority
@@ -25,22 +25,29 @@ Builder claim is not evidence. Command output, file inspection, passing test res
 
 | Run ID | Purpose | Command | Exit Status | Result | Evidence Notes |
 |---|---|---|---:|---|---|
-| V-001 | Harness document consistency inspection | `rg -n "TBD|UNKNOWN|Poke Todo|AC-010|FR-010" harness_ver2` | TBD | NOT_RUN | Run after harness update review |
+| V-001 | Model evaluator | `npm test` | 0 | PASS | 14 tests passed, 0 failed |
+| V-002 | Model smoke check | `npm run smoke` | 0 | PASS | Poke Todo model smoke check passed |
+| V-003 | Static UI build check | `npm run build` | 0 | PASS | Required Expo/public/src files are present and non-empty |
+| V-004 | Local server response | `curl -I http://localhost:5173` | 0 | PASS | HTTP 200 OK from dev server |
+| V-005 | Playwright mobile web smoke | `node -e "import('playwright')..."` | 0 | PASS | Loaded `http://localhost:5173`, found `오늘의 기록`, captured screenshot |
+| V-006 | Expo dependency compatibility | `npx expo install --check` | 0 | PASS | Dependencies are up to date for installed Expo SDK |
+| V-007 | Expo iOS/Android export | `npx expo export --platform ios --platform android --output-dir /private/tmp/poke_todo_expo_export` | 0 | PASS | iOS and Android bundles exported successfully |
+| V-008 | Expo Metro LAN response | `curl -s http://10.143.3.62:8081/status` | 0 | PASS | `packager-status:running` from LAN address |
 
 ## 4. Acceptance Criteria Validation Table
 
 | AC ID | Test/Validation | Result | Evidence | Notes |
 |---|---|---|---|---|
-| AC-001 | TEST-001 | NOT_RUN | TBD | Daily checklist starts |
-| AC-002 | TEST-002 | NOT_RUN | TBD | Checklist completion updates count |
-| AC-003 | TEST-003 | NOT_RUN | TBD | Candidate silhouettes appear |
-| AC-004 | TEST-004/005 | NOT_RUN | TBD | Wrap-up creates one encounter per completed item |
-| AC-005 | TEST-006/007/008 | NOT_RUN | TBD | Capture action resolves safely |
-| AC-006 | TEST-009 | NOT_RUN | TBD | Repeat encounter increases capture odds |
-| AC-007 | TEST-007 | NOT_RUN | TBD | Captured creature appears in collection |
-| AC-008 | TEST-010 | NOT_RUN | TBD | Deferred MVP features absent |
-| AC-009 | TEST-011 | NOT_RUN | TBD | Output understandable |
-| AC-010 | TEST-012 | NOT_RUN | TBD | Documented usage works |
+| AC-001 | TEST-001 | PASS | V-002, V-004, V-008 | Model smoke, local mobile web entry point, and Expo Metro entry point respond |
+| AC-002 | TEST-002 | PASS | V-001 | Checklist completion updates count |
+| AC-003 | TEST-003 | PASS | V-001, V-003, V-007 | Candidate data marks previews as silhouettes and UI shells render candidate cards |
+| AC-004 | TEST-004/005 | PASS | V-001 | Wrap-up creates one encounter per completed item and none for incomplete items |
+| AC-005 | TEST-006/007/008 | PASS | V-001, V-003, V-007 | Capture succeeds/fails safely without inventory; UI shells have capture action |
+| AC-006 | TEST-009 | PASS | V-001 | Repeat encounter chance increases and caps |
+| AC-007 | TEST-007 | PASS | V-001, V-003 | Collection data updates and web UI shell has collection view; Expo shell currently focuses on today/detail/wrap-up |
+| AC-008 | TEST-010 | PASS | V-001 | Deferred evidence/inventory state absent |
+| AC-009 | TEST-011 | PASS_WITH_MANUAL_REVIEW_RECOMMENDED | V-003, V-005 | UI states exist; Playwright mobile web screenshot succeeded; physical phone visual review still recommended |
+| AC-010 | TEST-012/014/015 | PASS | V-001, V-002, V-003, V-004, V-006, V-007, V-008 | `npm test`, `npm run smoke`, `npm run build`, web dev server, Expo compatibility, Expo export, and Metro LAN response work |
 
 ## 5. Failed Cases
 

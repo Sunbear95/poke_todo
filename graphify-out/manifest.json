@@ -1,0 +1,292 @@
+{
+  "/Users/jyoo/Documents/poke_todo/.graphify_detect.json": {
+    "mtime": 1780404522.4973333,
+    "ast_hash": "bb6754b3b7ccccd822c38c1f4fa7fe91",
+    "semantic_hash": "bb6754b3b7ccccd822c38c1f4fa7fe91"
+  },
+  "/Users/jyoo/Documents/poke_todo/.omx/goals/performance/mvp-model/codex-goal-complete.json": {
+    "mtime": 1780327087.3653216,
+    "ast_hash": "0b93e7a58cee60af62fb01ae8020350e",
+    "semantic_hash": "0b93e7a58cee60af62fb01ae8020350e"
+  },
+  "/Users/jyoo/Documents/poke_todo/.omx/goals/performance/mvp-model/state.json": {
+    "mtime": 1780327092.1858344,
+    "ast_hash": "3c53d3d704b5dc608bbf5e401ebfda98",
+    "semantic_hash": "3c53d3d704b5dc608bbf5e401ebfda98"
+  },
+  "/Users/jyoo/Documents/poke_todo/.omx/metrics.json": {
+    "mtime": 1780404929.621393,
+    "ast_hash": "38e1ea5c91a84e74dc0488fa6f2597b1",
+    "semantic_hash": "38e1ea5c91a84e74dc0488fa6f2597b1"
+  },
+  "/Users/jyoo/Documents/poke_todo/.omx/state/current-task-baseline.json": {
+    "mtime": 1780404929.8280187,
+    "ast_hash": "68f5d3edbbd8349e99609fee61f6ea49",
+    "semantic_hash": "68f5d3edbbd8349e99609fee61f6ea49"
+  },
+  "/Users/jyoo/Documents/poke_todo/.omx/state/deep-interview-state.json": {
+    "mtime": 1780330465.5030627,
+    "ast_hash": "4e40a5d998ec29e7d0107cb53b218e72",
+    "semantic_hash": "4e40a5d998ec29e7d0107cb53b218e72"
+  },
+  "/Users/jyoo/Documents/poke_todo/.omx/state/native-stop-state.json": {
+    "mtime": 1780404423.754789,
+    "ast_hash": "0ecc3b7ec2d6a01a75d739cea498b422",
+    "semantic_hash": "0ecc3b7ec2d6a01a75d739cea498b422"
+  },
+  "/Users/jyoo/Documents/poke_todo/.omx/state/session.json": {
+    "mtime": 1780403844.149173,
+    "ast_hash": "968f0132d44080370f6a0ba7d340d44d",
+    "semantic_hash": "968f0132d44080370f6a0ba7d340d44d"
+  },
+  "/Users/jyoo/Documents/poke_todo/.omx/state/sessions/019e8227-0337-7a53-ae16-4dc813b89e9c/hud-state.json": {
+    "mtime": 1780300158.6753,
+    "ast_hash": "67690d243ce4e1d468a6aab6e3421be7",
+    "semantic_hash": "67690d243ce4e1d468a6aab6e3421be7"
+  },
+  "/Users/jyoo/Documents/poke_todo/.omx/state/sessions/019e8227-0337-7a53-ae16-4dc813b89e9c/notify-hook-state.json": {
+    "mtime": 1780300158.5269587,
+    "ast_hash": "3c572adcda70b73f1ded3cba29ccc608",
+    "semantic_hash": "3c572adcda70b73f1ded3cba29ccc608"
+  },
+  "/Users/jyoo/Documents/poke_todo/.omx/state/sessions/019e8227-0337-7a53-ae16-4dc813b89e9c/prompt-routing-state.json": {
+    "mtime": 1780300058.1570573,
+    "ast_hash": "6dcd54bdceb8c310813538ceb6be956f",
+    "semantic_hash": "6dcd54bdceb8c310813538ceb6be956f"
+  },
+  "/Users/jyoo/Documents/poke_todo/.omx/state/sessions/019e822e-7bba-7482-a268-c71229a0957e/deep-interview-state.json": {
+    "mtime": 1780302506.019104,
+    "ast_hash": "c5fa9e1b069f537b20dae03ef47b9548",
+    "semantic_hash": "c5fa9e1b069f537b20dae03ef47b9548"
+  },
+  "/Users/jyoo/Documents/poke_todo/.omx/state/sessions/019e822e-7bba-7482-a268-c71229a0957e/hud-state.json": {
+    "mtime": 1780330465.4976087,
+    "ast_hash": "818a6145a2afca9505da6444e6c9bde4",
+    "semantic_hash": "818a6145a2afca9505da6444e6c9bde4"
+  },
+  "/Users/jyoo/Documents/poke_todo/.omx/state/sessions/019e822e-7bba-7482-a268-c71229a0957e/notify-hook-state.json": {
+    "mtime": 1780330465.3119402,
+    "ast_hash": "757396aabb5d40c4d448bf37404b2488",
+    "semantic_hash": "757396aabb5d40c4d448bf37404b2488"
+  },
+  "/Users/jyoo/Documents/poke_todo/.omx/state/sessions/019e822e-7bba-7482-a268-c71229a0957e/prompt-routing-state.json": {
+    "mtime": 1780327815.0609503,
+    "ast_hash": "8ba6dde22fc43cf6c556bc9b28fb11c7",
+    "semantic_hash": "8ba6dde22fc43cf6c556bc9b28fb11c7"
+  },
+  "/Users/jyoo/Documents/poke_todo/.omx/state/sessions/019e822e-7bba-7482-a268-c71229a0957e/skill-active-state.json": {
+    "mtime": 1780330465.5020442,
+    "ast_hash": "8a1e1e7ac51f3b3f7009eddfe73dda34",
+    "semantic_hash": "8a1e1e7ac51f3b3f7009eddfe73dda34"
+  },
+  "/Users/jyoo/Documents/poke_todo/.omx/state/sessions/019e8552-0cb6-7320-8d1f-5d5a0e1727aa/hud-state.json": {
+    "mtime": 1780404929.7020097,
+    "ast_hash": "e143088800753ed70aceca4883b0e3c5",
+    "semantic_hash": "e143088800753ed70aceca4883b0e3c5"
+  },
+  "/Users/jyoo/Documents/poke_todo/.omx/state/sessions/019e8552-0cb6-7320-8d1f-5d5a0e1727aa/notify-hook-state.json": {
+    "mtime": 1780404929.6169598,
+    "ast_hash": "9a0d12bcb0ef2f462d39f2be419f27e8",
+    "semantic_hash": "9a0d12bcb0ef2f462d39f2be419f27e8"
+  },
+  "/Users/jyoo/Documents/poke_todo/.omx/state/skill-active-state.json": {
+    "mtime": 1780302506.0270164,
+    "ast_hash": "9e596c9dc722de36d66a3bd24aeabbfd",
+    "semantic_hash": "9e596c9dc722de36d66a3bd24aeabbfd"
+  },
+  "/Users/jyoo/Documents/poke_todo/.omx/state/subagent-tracking.json": {
+    "mtime": 1780404929.618054,
+    "ast_hash": "4e84bcf3ada2d9aad478f802703625e5",
+    "semantic_hash": "4e84bcf3ada2d9aad478f802703625e5"
+  },
+  "/Users/jyoo/Documents/poke_todo/.omx/state/team-leader-nudge.json": {
+    "mtime": 1780404929.710008,
+    "ast_hash": "34dfcf00a869fbd821fdf5112259f8aa",
+    "semantic_hash": "34dfcf00a869fbd821fdf5112259f8aa"
+  },
+  "/Users/jyoo/Documents/poke_todo/.omx/state/tmux-hook-state.json": {
+    "mtime": 1780404929.7083132,
+    "ast_hash": "b7db5329cadea52d9dc543081ec21d11",
+    "semantic_hash": "b7db5329cadea52d9dc543081ec21d11"
+  },
+  "/Users/jyoo/Documents/poke_todo/.omx/tmux-hook.json": {
+    "mtime": 1780302446.3710215,
+    "ast_hash": "33569f844865499f02203fc7daef6ea8",
+    "semantic_hash": "33569f844865499f02203fc7daef6ea8"
+  },
+  "/Users/jyoo/Documents/poke_todo/package.json": {
+    "mtime": 1780329920.2089448,
+    "ast_hash": "0c4927eadbde273a1862449d85b11d54",
+    "semantic_hash": "0c4927eadbde273a1862449d85b11d54"
+  },
+  "/Users/jyoo/Documents/poke_todo/public/app.mjs": {
+    "mtime": 1780403986.918605,
+    "ast_hash": "e71baf6cd674cfcf617801e46d804958",
+    "semantic_hash": "e71baf6cd674cfcf617801e46d804958"
+  },
+  "/Users/jyoo/Documents/poke_todo/scripts/build-check.mjs": {
+    "mtime": 1780329439.302789,
+    "ast_hash": "bf17c62677ea945374003625b598f6db",
+    "semantic_hash": "bf17c62677ea945374003625b598f6db"
+  },
+  "/Users/jyoo/Documents/poke_todo/scripts/serve.mjs": {
+    "mtime": 1780329438.8607442,
+    "ast_hash": "11145a918dcd456bb3b0ea4fbef6aade",
+    "semantic_hash": "11145a918dcd456bb3b0ea4fbef6aade"
+  },
+  "/Users/jyoo/Documents/poke_todo/src/demoData.mjs": {
+    "mtime": 1780329437.92003,
+    "ast_hash": "4775924e0579eb5ca577c406f89de44f",
+    "semantic_hash": "4775924e0579eb5ca577c406f89de44f"
+  },
+  "/Users/jyoo/Documents/poke_todo/src/model.mjs": {
+    "mtime": 1780404032.9473066,
+    "ast_hash": "e36b8161c7954ed02506a0a93ced945c",
+    "semantic_hash": "e36b8161c7954ed02506a0a93ced945c"
+  },
+  "/Users/jyoo/Documents/poke_todo/test/model.test.mjs": {
+    "mtime": 1780403948.5406604,
+    "ast_hash": "61a6890ca3e32c9afafdc7b32a0aa463",
+    "semantic_hash": "61a6890ca3e32c9afafdc7b32a0aa463"
+  },
+  "/Users/jyoo/Documents/poke_todo/test/smoke.mjs": {
+    "mtime": 1780326968.062153,
+    "ast_hash": "f85748ffaf57a40c4cf9756c290fff7a",
+    "semantic_hash": "f85748ffaf57a40c4cf9756c290fff7a"
+  },
+  "/Users/jyoo/Documents/poke_todo/.omx/context/pokemon-bullet-journal-20260601T075558Z.md": {
+    "mtime": 1780302555.6129482,
+    "ast_hash": "bfcee7310fb7a6bd4c033b5fdf6a5a2a",
+    "semantic_hash": "bfcee7310fb7a6bd4c033b5fdf6a5a2a"
+  },
+  "/Users/jyoo/Documents/poke_todo/.omx/goals/performance/mvp-model/evaluator.md": {
+    "mtime": 1780326849.3007362,
+    "ast_hash": "24ff3cf5f2bae6c1b4075b9d54f3443c",
+    "semantic_hash": "24ff3cf5f2bae6c1b4075b9d54f3443c"
+  },
+  "/Users/jyoo/Documents/poke_todo/.omx/interviews/pokemon-bullet-journal-20260601T075558Z.md": {
+    "mtime": 1780302557.1822827,
+    "ast_hash": "a325a31d9911ce61d7fcdd520cd22562",
+    "semantic_hash": "a325a31d9911ce61d7fcdd520cd22562"
+  },
+  "/Users/jyoo/Documents/poke_todo/.omx/specs/deep-interview-pokemon-bullet-journal.md": {
+    "mtime": 1780302558.2198994,
+    "ast_hash": "99052334e1f34327236f613b360a7521",
+    "semantic_hash": "99052334e1f34327236f613b360a7521"
+  },
+  "/Users/jyoo/Documents/poke_todo/harness_ver2/AGENTS.md": {
+    "mtime": 1780326089.083961,
+    "ast_hash": "44da9f1d574db06f290d9b21fb24ed38",
+    "semantic_hash": "44da9f1d574db06f290d9b21fb24ed38"
+  },
+  "/Users/jyoo/Documents/poke_todo/harness_ver2/ARCHITECTURE.md": {
+    "mtime": 1780326457.7659457,
+    "ast_hash": "acadf2bbb0a60610e378943d7921b9d3",
+    "semantic_hash": "acadf2bbb0a60610e378943d7921b9d3"
+  },
+  "/Users/jyoo/Documents/poke_todo/harness_ver2/BACKLOG.md": {
+    "mtime": 1780326458.1237936,
+    "ast_hash": "f00e3d1fb936c6aa02959f0f336823fa",
+    "semantic_hash": "f00e3d1fb936c6aa02959f0f336823fa"
+  },
+  "/Users/jyoo/Documents/poke_todo/harness_ver2/MIGRATION_MAP.md": {
+    "mtime": 1780326089.0845218,
+    "ast_hash": "581e7984a5a188968cba40f6ed1d6c50",
+    "semantic_hash": "581e7984a5a188968cba40f6ed1d6c50"
+  },
+  "/Users/jyoo/Documents/poke_todo/harness_ver2/PROJECT_CONTEXT.md": {
+    "mtime": 1780327053.2642994,
+    "ast_hash": "2eee87cb32d67a01b03a7ca3c2377b44",
+    "semantic_hash": "2eee87cb32d67a01b03a7ca3c2377b44"
+  },
+  "/Users/jyoo/Documents/poke_todo/harness_ver2/README.md": {
+    "mtime": 1780326563.0236154,
+    "ast_hash": "8c576ba86f2376295cb7e63256a7e2d4",
+    "semantic_hash": "8c576ba86f2376295cb7e63256a7e2d4"
+  },
+  "/Users/jyoo/Documents/poke_todo/harness_ver2/SPEC/ACCEPTANCE_CRITERIA.md": {
+    "mtime": 1780326372.4561868,
+    "ast_hash": "a9b7ecbe7e11916985e98cc415025c7c",
+    "semantic_hash": "a9b7ecbe7e11916985e98cc415025c7c"
+  },
+  "/Users/jyoo/Documents/poke_todo/harness_ver2/SPEC/DATA_MODEL.md": {
+    "mtime": 1780326422.0331833,
+    "ast_hash": "d1ba20c65d6ae2fb4809de66e1d21cde",
+    "semantic_hash": "d1ba20c65d6ae2fb4809de66e1d21cde"
+  },
+  "/Users/jyoo/Documents/poke_todo/harness_ver2/SPEC/INTERFACE_CONTRACT.md": {
+    "mtime": 1780326372.8402376,
+    "ast_hash": "86b0422229928f5676043c9353581011",
+    "semantic_hash": "86b0422229928f5676043c9353581011"
+  },
+  "/Users/jyoo/Documents/poke_todo/harness_ver2/SPEC/PRD.md": {
+    "mtime": 1780327053.4211237,
+    "ast_hash": "38a015dabcdf66dcdc8d63adc1805011",
+    "semantic_hash": "38a015dabcdf66dcdc8d63adc1805011"
+  },
+  "/Users/jyoo/Documents/poke_todo/harness_ver2/STATUS.md": {
+    "mtime": 1780329667.8307052,
+    "ast_hash": "a6101aee474d5f4652f1027c5841601c",
+    "semantic_hash": "a6101aee474d5f4652f1027c5841601c"
+  },
+  "/Users/jyoo/Documents/poke_todo/harness_ver2/TASK_QUEUE.md": {
+    "mtime": 1780329668.2847693,
+    "ast_hash": "8c1c36ddc4d582bd6e09902e56fbb5a1",
+    "semantic_hash": "8c1c36ddc4d582bd6e09902e56fbb5a1"
+  },
+  "/Users/jyoo/Documents/poke_todo/harness_ver2/TEST/TEST_PLAN.md": {
+    "mtime": 1780329668.752292,
+    "ast_hash": "edfc15f0900763b07b769487848262f8",
+    "semantic_hash": "edfc15f0900763b07b769487848262f8"
+  },
+  "/Users/jyoo/Documents/poke_todo/harness_ver2/UNIVERSAL_AGENT_HARNESS_README.md": {
+    "mtime": 1780326089.0874472,
+    "ast_hash": "02537239545ede010e3cc7ee735ed761",
+    "semantic_hash": "02537239545ede010e3cc7ee735ed761"
+  },
+  "/Users/jyoo/Documents/poke_todo/harness_ver2/VALIDATION/RISK_REGISTER.md": {
+    "mtime": 1780327054.0375917,
+    "ast_hash": "35e0ba2b2648db3961e8f20b9903f2b7",
+    "semantic_hash": "35e0ba2b2648db3961e8f20b9903f2b7"
+  },
+  "/Users/jyoo/Documents/poke_todo/harness_ver2/VALIDATION/VALIDATION_REPORT.md": {
+    "mtime": 1780329669.1976361,
+    "ast_hash": "57d226dd44408466f3b7860707ed8667",
+    "semantic_hash": "57d226dd44408466f3b7860707ed8667"
+  },
+  "/Users/jyoo/Documents/poke_todo/harness_ver2/docs/RUNBOOK.md": {
+    "mtime": 1780326089.0885406,
+    "ast_hash": "4f6484c03f32a30eef2829a7a341b554",
+    "semantic_hash": "4f6484c03f32a30eef2829a7a341b554"
+  },
+  "/Users/jyoo/Documents/poke_todo/public/index.html": {
+    "mtime": 1780329439.9804494,
+    "ast_hash": "8857df2018e29908cb09da48b1f2e2e1",
+    "semantic_hash": "8857df2018e29908cb09da48b1f2e2e1"
+  },
+  "/Users/jyoo/Documents/poke_todo/.omx/state/sessions/019e8552-0cb6-7320-8d1f-5d5a0e1727aa/prompt-routing-state.json": {
+    "mtime": 1780404703.6701262,
+    "ast_hash": "6b9a737cbe3647c318ae3d2ccd7534c5",
+    "semantic_hash": "6b9a737cbe3647c318ae3d2ccd7534c5"
+  },
+  "/Users/jyoo/Documents/poke_todo/.omx/state/sessions/019e876e-4ce7-7653-8876-1ca63580a442/hud-state.json": {
+    "mtime": 1780388740.4271584,
+    "ast_hash": "3333613e555f965976eee2aad8188a11",
+    "semantic_hash": "3333613e555f965976eee2aad8188a11"
+  },
+  "/Users/jyoo/Documents/poke_todo/.omx/state/sessions/019e876e-4ce7-7653-8876-1ca63580a442/notify-hook-state.json": {
+    "mtime": 1780388740.3488166,
+    "ast_hash": "96f6609cd7f6e051765aa814a655101d",
+    "semantic_hash": "96f6609cd7f6e051765aa814a655101d"
+  },
+  "/Users/jyoo/Documents/poke_todo/.omx/state/sessions/019e876e-4ce7-7653-8876-1ca63580a442/prompt-routing-state.json": {
+    "mtime": 1780388615.7898638,
+    "ast_hash": "4c94a00a18e85fa8d5e7d03cdd640275",
+    "semantic_hash": "4c94a00a18e85fa8d5e7d03cdd640275"
+  },
+  "/Users/jyoo/Documents/poke_todo/public/playwright-habit-combo.png": {
+    "mtime": 1780404098.770354,
+    "ast_hash": "1d476d8b4ca7932cc807ba99b454ef14",
+    "semantic_hash": "1d476d8b4ca7932cc807ba99b454ef14"
+  }
+}
