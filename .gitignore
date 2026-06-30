@@ -1,3 +1,7 @@
 node_modules/
 .expo/
-public/playwright-smoke.png
+.DS_Store
+public/playwright-*.png
+graphify-out/.graphify_python
+graphify-out/cache/ast/
+graphify-out/cache/semantic/
