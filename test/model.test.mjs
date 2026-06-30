@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { demoCreatures, demoTodos } from "../src/demoData.mjs";
 import {
+  addTodoItem,
   assertMvpDeferredFeaturesAbsent,
   attemptCapture,
   captureChanceFor,
@@ -10,6 +11,44 @@ import {
   startDailyWrapUp,
   toggleChecklistItem,
 } from "../src/model.mjs";
+
+test("adding a todo appends an incomplete task with display metadata", () => {
+  const state = createInitialState({ todos: demoTodos, creatures: demoCreatures });
+
+  const added = addTodoItem({
+    todos: state.todos,
+    title: "  장보기  ",
+    category: "health",
+    now: "2026-06-02T11:00:00.000Z",
+  });
+
+  assert.equal(added.ok, true);
+  assert.equal(added.data.todos.length, demoTodos.length + 1);
+  assert.equal(added.data.completedCount, 0);
+  assert.deepEqual(added.data.todo, {
+    id: "todo-346c",
+    title: "장보기",
+    kind: "task",
+    category: "health",
+    goal: "오늘 완료하기",
+    note: ["새로 추가한 할 일이에요."],
+    xp: 10,
+    completed: false,
+    createdAt: "2026-06-02T11:00:00.000Z",
+  });
+});
+
+test("adding a todo validates title and kind", () => {
+  assert.equal(addTodoItem({ todos: demoTodos, title: " " }).ok, false);
+  const invalidKind = addTodoItem({
+    todos: demoTodos,
+    title: "물 주기",
+    kind: "weekly",
+  });
+
+  assert.equal(invalidKind.ok, false);
+  assert.equal(invalidKind.error.code, "VALIDATION_FAILED");
+});
 
 test("checking and unchecking a todo updates completed count", () => {
   const state = createInitialState({ todos: demoTodos, creatures: demoCreatures });

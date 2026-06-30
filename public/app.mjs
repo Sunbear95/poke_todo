@@ -1,5 +1,6 @@
 import { demoCreatures, demoTodos } from "/src/demoData.mjs";
 import {
+  addTodoItem,
   assertMvpDeferredFeaturesAbsent,
   attemptCapture,
   createInitialState,
@@ -146,6 +147,36 @@ function todayTemplate() {
         </button>
       </header>
 
+      <form class="add-todo-form" data-form="add-todo" autocomplete="off">
+        <label class="field-label" for="new-todo-title">새 할 일</label>
+        <div class="add-todo-row">
+          <input
+            id="new-todo-title"
+            name="title"
+            type="text"
+            maxlength="80"
+            placeholder="오늘 할 일을 입력"
+            aria-label="새 할 일 제목"
+            required
+          />
+          <button class="add-button" type="submit" aria-label="할 일 추가">
+            ${plusIcon()}
+          </button>
+        </div>
+        <div class="add-options" aria-label="새 할 일 설정">
+          <select name="kind" aria-label="종류">
+            <option value="task">오늘 할일</option>
+            <option value="habit">습관</option>
+          </select>
+          <select name="category" aria-label="카테고리">
+            <option value="hobby">취미</option>
+            <option value="study">공부</option>
+            <option value="exercise">운동</option>
+            <option value="health">건강</option>
+          </select>
+        </div>
+      </form>
+
       <section class="task-list">
         ${state.todos.map(todoRowTemplate).join("")}
       </section>
@@ -184,8 +215,8 @@ function todayTemplate() {
 
 function detailTemplate() {
   const todo = state.todos.find((item) => item.id === selectedTodoId) ?? state.todos[0];
-  const meta = taskMeta[todo.id] ?? taskMeta["study-30"];
-  const category = categoryMeta[meta.category];
+  const meta = taskMeta[todo.id] ?? todo ?? taskMeta["study-30"];
+  const category = categoryMeta[meta.category] ?? categoryMeta.hobby;
   const kind = kindMeta[todo.kind] ?? kindMeta.task;
   const comboDays = habitComboDays(todo);
   const candidates = getCandidates();
@@ -205,13 +236,13 @@ function detailTemplate() {
             ${todo.completed ? checkIcon() : ""}
           </button>
           <div class="title-stack">
-            <h2>${meta.title}</h2>
+            <h2>${escapeHtml(meta.title)}</h2>
             <span class="kind-badge ${kind.tone}">${kind.label}</span>
           </div>
         </div>
         <div class="info-grid">
           <span class="goal-label">${targetIcon()} 오늘의 목표</span>
-          <span>${meta.goal}</span>
+          <span>${escapeHtml(meta.goal)}</span>
           <span class="tag ${category.tone}">${category.icon()} ${category.label}</span>
         </div>
         ${
@@ -228,7 +259,7 @@ function detailTemplate() {
         <hr />
         <section class="memo-block">
           <h3>${noteIcon()} 메모</h3>
-          ${meta.note.map((line) => `<p>${line}</p>`).join("")}
+          ${(meta.note ?? []).map((line) => `<p>${escapeHtml(line)}</p>`).join("")}
         </section>
       </article>
 
@@ -312,7 +343,7 @@ function todoRowTemplate(todo) {
         ${todo.completed ? checkIcon() : ""}
       </button>
       <div class="task-title">
-        <strong>${meta.title}</strong>
+        <strong>${escapeHtml(meta.title)}</strong>
         <span class="kind-badge ${kind.tone}">${kind.label}</span>
       </div>
       <span class="tag ${category.tone}">${category.icon()} ${category.label}</span>
@@ -355,6 +386,11 @@ function collectionCardTemplate(creature) {
 }
 
 function bindEvents(root) {
+  root.querySelector("[data-form='add-todo']")?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    addTodo(event.currentTarget);
+  });
+
   root.querySelectorAll("[data-action]").forEach((node) => {
     node.addEventListener("click", (event) => {
       event.stopPropagation();
@@ -419,6 +455,28 @@ function handleAction(action, id) {
     currentView = "today";
     render();
   }
+}
+
+function addTodo(form) {
+  const formData = new FormData(form);
+  const result = addTodoItem({
+    todos: state.todos,
+    title: formData.get("title"),
+    kind: formData.get("kind"),
+    category: formData.get("category"),
+  });
+  if (!result.ok) return;
+  state = {
+    ...state,
+    todos: result.data.todos,
+    dailySession: {
+      ...state.dailySession,
+      completedCount: result.data.completedCount,
+    },
+  };
+  saveState();
+  render();
+  document.querySelector("#new-todo-title")?.focus();
 }
 
 function toggleTodo(todoId) {
@@ -523,6 +581,15 @@ function deterministicRandom(value) {
   return (score % 100) / 100;
 }
 
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
 assertMvpDeferredFeaturesAbsent(state);
 
 function icon(svgPath, viewBox = "0 0 24 24") {
@@ -561,4 +628,7 @@ function noteIcon() {
 }
 function starIcon() {
   return icon('<path d="m12 2 3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1 3-6Z" />');
+}
+function plusIcon() {
+  return icon('<path d="M12 5v14" /><path d="M5 12h14" />');
 }

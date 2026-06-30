@@ -125,6 +125,67 @@ h3 {
   gap: 16px;
 }
 
+.add-todo-form {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 18px;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+}
+
+.field-label {
+  color: var(--green-dark);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.add-todo-row {
+  display: grid;
+  grid-template-columns: 1fr 48px;
+  gap: 10px;
+}
+
+.add-todo-row input,
+.add-options select {
+  min-width: 0;
+  min-height: 48px;
+  width: 100%;
+  color: var(--ink);
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  font: inherit;
+  font-size: 16px;
+}
+
+.add-todo-row input {
+  padding: 0 14px;
+}
+
+.add-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.add-options select {
+  padding: 0 10px;
+  font-weight: 700;
+}
+
+.add-button {
+  display: grid;
+  place-items: center;
+  min-width: 48px;
+  height: 48px;
+  color: #fff;
+  background: linear-gradient(180deg, #48bd62, #309848);
+  border-radius: 12px;
+}
+
 .task-row,
 .detail-card,
 .candidate-card,
@@ -680,6 +741,10 @@ hr {
   .task-row .tag {
     grid-column: 2;
     justify-self: start;
+  }
+
+  .add-options {
+    grid-template-columns: 1fr;
   }
 
   .task-title {

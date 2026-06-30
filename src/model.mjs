@@ -57,6 +57,55 @@ export function toggleChecklistItem({ todos, todoId, completed, now = nowIso() }
   });
 }
 
+export function addTodoItem({
+  todos = [],
+  title,
+  kind = "task",
+  category = "hobby",
+  goal,
+  note,
+  xp = 10,
+  now = nowIso(),
+} = {}) {
+  const normalizedTitle = typeof title === "string" ? title.trim() : "";
+  if (!normalizedTitle) {
+    return failure("VALIDATION_FAILED", "Todo title is required.");
+  }
+  if (normalizedTitle.length > 80) {
+    return failure("VALIDATION_FAILED", "Todo title must be 80 characters or fewer.");
+  }
+  if (!["task", "habit"].includes(kind)) {
+    return failure("VALIDATION_FAILED", "Todo kind must be task or habit.");
+  }
+
+  const createdAt = now;
+  const normalizedGoal = typeof goal === "string" ? goal.trim() : "";
+  const normalizedNote = Array.isArray(note)
+    ? note.filter((line) => typeof line === "string" && line.trim()).map((line) => line.trim())
+    : [];
+
+  const todo = {
+    id: nextTodoId({ title: normalizedTitle, createdAt, todos }),
+    title: normalizedTitle,
+    kind,
+    category,
+    goal: normalizedGoal || "오늘 완료하기",
+    note: normalizedNote.length > 0 ? normalizedNote : ["새로 추가한 할 일이에요."],
+    xp,
+    completed: false,
+    createdAt,
+    ...(kind === "habit"
+      ? { habitStreak: { current: 0, best: 0, lastCompletedDate: undefined } }
+      : {}),
+  };
+
+  return success({
+    todo,
+    todos: [...todos.map((item) => ({ ...item })), todo],
+    completedCount: countCompleted(todos),
+  });
+}
+
 export function selectCandidateCreatures({
   completedCount,
   captureProgress = [],
@@ -344,6 +393,15 @@ function clampChance(value) {
 
 function stringScore(value) {
   return [...value].reduce((sum, char) => sum + char.charCodeAt(0), 0);
+}
+
+function nextTodoId({ title, createdAt, todos }) {
+  const base = `todo-${stringScore(`${title}-${createdAt}`).toString(36)}`;
+  const existingIds = new Set(todos.map((todo) => todo.id));
+  if (!existingIds.has(base)) return base;
+  let suffix = 2;
+  while (existingIds.has(`${base}-${suffix}`)) suffix += 1;
+  return `${base}-${suffix}`;
 }
 
 function clone(value) {
