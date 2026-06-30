@@ -37,6 +37,13 @@ export function toggleChecklistItem({ todos, todoId, completed, now = nowIso() }
     return failure("NOT_FOUND", "Todo item not found.");
   }
 
+  if (item.completed === completed) {
+    return success({
+      todos: todos.map((todo) => ({ ...todo })),
+      completedCount: countCompleted(todos),
+    });
+  }
+
   const updatedTodos = todos.map((todo) => {
     if (todo.id !== todoId) return { ...todo };
     const habitStreak =

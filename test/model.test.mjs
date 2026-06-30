@@ -103,6 +103,27 @@ test("checking a habit increases its combo streak", () => {
   assert.equal(habit.habitStreak.lastCompletedDate, "2026-06-02");
 });
 
+test("checking an already completed habit is idempotent", () => {
+  const completedHabit = {
+    ...demoTodos[0],
+    kind: "habit",
+    completed: true,
+    completedAt: "2026-06-02T09:00:00.000Z",
+    habitStreak: { current: 5, best: 5, lastCompletedDate: "2026-06-02" },
+  };
+
+  const checkedAgain = toggleChecklistItem({
+    todos: [completedHabit],
+    todoId: completedHabit.id,
+    completed: true,
+    now: "2026-06-02T10:00:00.000Z",
+  });
+
+  assert.equal(checkedAgain.ok, true);
+  assert.equal(checkedAgain.data.todos[0].habitStreak.current, 5);
+  assert.equal(checkedAgain.data.todos[0].completedAt, completedHabit.completedAt);
+});
+
 test("unknown todo returns a controlled error", () => {
   const result = toggleChecklistItem({
     todos: demoTodos,

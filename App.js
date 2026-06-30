@@ -1,5 +1,5 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   Image,
   Pressable,
@@ -111,6 +111,8 @@ const CATEGORY_META = Object.fromEntries(
 export default function App() {
   const [screen, setScreen] = useState("today");
   const [selectedTodoId, setSelectedTodoId] = useState("run");
+  const [activeEncounterId, setActiveEncounterId] = useState(null);
+  const wrapUpStartedRef = useRef(false);
   const [state, setState] = useState({
     ...initialState,
     captureProgress: initialCaptureProgress,
@@ -118,16 +120,19 @@ export default function App() {
   const selectedTodo = state.todos.find((todo) => todo.id === selectedTodoId);
 
   function toggleTodo(todoId, completed) {
-    const result = toggleChecklistItem({ todos: state.todos, todoId, completed });
-    if (!result.ok) return;
-    setState((current) => ({
-      ...current,
-      todos: result.data.todos,
-      dailySession: {
-        ...current.dailySession,
-        completedCount: result.data.completedCount,
-      },
-    }));
+    if (state.dailySession.wrapUpStarted) return;
+    setState((current) => {
+      const result = toggleChecklistItem({ todos: current.todos, todoId, completed });
+      if (!result.ok) return current;
+      return {
+        ...current,
+        todos: result.data.todos,
+        dailySession: {
+          ...current.dailySession,
+          completedCount: result.data.completedCount,
+        },
+      };
+    });
   }
 
   function addTodo({ title, kind, category }) {
@@ -162,12 +167,26 @@ export default function App() {
   }
 
   function beginWrapUp() {
+    if (state.dailySession.wrapUpStarted || wrapUpStartedRef.current) {
+      setActiveEncounterId(
+        state.encounters.find((encounter) => encounter.status === "pending")?.id ??
+          state.encounters.at(-1)?.id ??
+          null
+      );
+      setScreen("wrap");
+      return;
+    }
+    wrapUpStartedRef.current = true;
     const result = startDailyWrapUp({
       todos: state.todos,
       creatures: state.creatures,
       captureProgress: state.captureProgress,
     });
-    if (!result.ok) return;
+    if (!result.ok) {
+      wrapUpStartedRef.current = false;
+      return;
+    }
+    setActiveEncounterId(result.data.encounters[0]?.id ?? null);
     setState((current) => ({
       ...current,
       encounters: result.data.encounters,
@@ -181,19 +200,26 @@ export default function App() {
   }
 
   function captureEncounter(encounterId) {
-    const result = attemptCapture({
-      encounters: state.encounters,
-      encounterId,
-      captureProgress: state.captureProgress,
-      collection: state.collection,
-      randomValue: stableRandom(encounterId),
+    setState((current) => {
+      const result = attemptCapture({
+        encounters: current.encounters,
+        encounterId,
+        captureProgress: current.captureProgress,
+        collection: current.collection,
+        randomValue: Math.random(),
+      });
+      if (!result.ok) return current;
+      return {
+        ...current,
+        encounters: result.data.encounters,
+        collection: result.data.collection,
+      };
     });
-    if (!result.ok) return;
-    setState((current) => ({
-      ...current,
-      encounters: result.data.encounters,
-      collection: result.data.collection,
-    }));
+  }
+
+  function advanceEncounter() {
+    const next = state.encounters.find((encounter) => encounter.status === "pending");
+    setActiveEncounterId(next?.id ?? null);
   }
 
   return (
@@ -224,7 +250,9 @@ export default function App() {
       {screen === "wrap" && (
         <WrapScreen
           state={state}
+          activeEncounterId={activeEncounterId}
           onCapture={captureEncounter}
+          onNext={advanceEncounter}
           onDone={() => setScreen("today")}
           onCollection={() => setScreen("collection")}
         />
@@ -263,9 +291,15 @@ function TodayScreen({ state, onOpenDetail, onToggle, onWrapUp, onAdd, onCollect
             todo={todo}
             onPress={() => openTodo(todo, onOpenDetail)}
             onToggle={() => onToggle(todo.id, !todo.completed)}
+            locked={state.dailySession.wrapUpStarted}
           />
         ))}
-        <Pressable style={styles.addRow} onPress={onAdd}>
+        <Pressable
+          style={[styles.addRow, state.dailySession.wrapUpStarted && styles.buttonDisabled]}
+          onPress={onAdd}
+          disabled={state.dailySession.wrapUpStarted}
+          accessibilityState={{ disabled: state.dailySession.wrapUpStarted }}
+        >
           <MaterialCommunityIcons name="plus-circle-outline" size={28} color="#39a24d" />
           <Text style={styles.addRowText}>할 일 추가</Text>
         </Pressable>
@@ -293,7 +327,14 @@ function TodayScreen({ state, onOpenDetail, onToggle, onWrapUp, onAdd, onCollect
         </View>
       </View>
 
-      <PrimaryButton label="하루 마감" onPress={onWrapUp} />
+      {state.dailySession.wrapUpStarted && (
+        <Text style={styles.lockedHint}>하루 마감 후에는 오늘의 기록을 수정할 수 없어요.</Text>
+      )}
+
+      <PrimaryButton
+        label={state.dailySession.wrapUpStarted ? "마감 결과 보기" : "하루 마감"}
+        onPress={onWrapUp}
+      />
     </Screen>
   );
 }
@@ -301,7 +342,7 @@ function TodayScreen({ state, onOpenDetail, onToggle, onWrapUp, onAdd, onCollect
 function DetailScreen({ state, todo, onBack, onToggle, onSelectPreferred }) {
   const candidates = useMemo(() => {
     const result = selectCandidateCreatures({
-      completedCount: Math.max(1, state.dailySession.completedCount),
+      completedCount: state.dailySession.completedCount,
       captureProgress: state.captureProgress,
       creatures: state.creatures,
       todo,
@@ -322,7 +363,11 @@ function DetailScreen({ state, todo, onBack, onToggle, onSelectPreferred }) {
 
       <View style={styles.detailCard}>
         <View style={styles.detailTitleRow}>
-          <CheckBox checked={todo.completed} onPress={() => onToggle(todo.id, !todo.completed)} />
+          <CheckBox
+            checked={todo.completed}
+            onPress={() => onToggle(todo.id, !todo.completed)}
+            disabled={state.dailySession.wrapUpStarted}
+          />
           <Text style={styles.detailTodoTitle}>{todo.title}</Text>
         </View>
         <View style={styles.infoRow}>
@@ -337,7 +382,7 @@ function DetailScreen({ state, todo, onBack, onToggle, onSelectPreferred }) {
             <MaterialCommunityIcons name="note-text-outline" size={24} color="#39a24d" />
             <Text style={styles.infoLabel}>메모</Text>
           </View>
-          <Text style={styles.memoText}>{todo.memo}</Text>
+          <Text style={styles.memoText}>{todoMemo(todo)}</Text>
         </View>
       </View>
 
@@ -375,6 +420,11 @@ function DetailScreen({ state, todo, onBack, onToggle, onSelectPreferred }) {
             </View>
           </Pressable>
         ))}
+        {candidates.length === 0 && (
+          <View style={styles.emptyPreview}>
+            <Text style={styles.helperText}>먼저 할 일을 하나 완료해 주세요.</Text>
+          </View>
+        )}
       </View>
 
       <View style={styles.rewardStrip}>
@@ -382,15 +432,21 @@ function DetailScreen({ state, todo, onBack, onToggle, onSelectPreferred }) {
         <Text style={styles.rewardLabel}>완료 시 보상</Text>
         <Text style={styles.rewardXp}>+{todo.xp} XP</Text>
       </View>
-      <PrimaryButton label="완료하기" onPress={() => onToggle(todo.id, true)} />
+      <PrimaryButton
+        label={todo.completed ? "완료됨" : "완료하기"}
+        onPress={() => onToggle(todo.id, true)}
+        disabled={todo.completed || state.dailySession.wrapUpStarted}
+      />
     </Screen>
   );
 }
 
-function WrapScreen({ state, onCapture, onDone, onCollection }) {
-  const pending = state.encounters.find((encounter) => encounter.status === "pending");
-  const activeEncounter = pending ?? state.encounters[state.encounters.length - 1];
+function WrapScreen({ state, activeEncounterId, onCapture, onNext, onDone, onCollection }) {
+  const activeEncounter = state.encounters.find(
+    (encounter) => encounter.id === activeEncounterId
+  );
   const creature = state.creatures.find((item) => item.id === activeEncounter?.creatureId);
+  const pendingCount = state.encounters.filter((encounter) => encounter.status === "pending").length;
 
   return (
     <Screen>
@@ -406,19 +462,43 @@ function WrapScreen({ state, onCapture, onDone, onCollection }) {
             <Text style={styles.helperText}>
               포획 확률 {Math.round(activeEncounter.captureChance * 100)}%
             </Text>
+            {activeEncounter.status !== "pending" && (
+              <Text
+                style={[
+                  styles.captureResult,
+                  activeEncounter.status === "caught" && styles.captureSuccess,
+                ]}
+              >
+                {activeEncounter.status === "caught"
+                  ? `${creature.name} 포획 성공!`
+                  : `${creature.name}이(가) 도망갔어요.`}
+              </Text>
+            )}
             <PrimaryButton
-              label={activeEncounter.status === "pending" ? "포획 시도" : "결과 확인 완료"}
+              label={
+                activeEncounter.status === "pending"
+                  ? "포획 시도"
+                  : pendingCount > 0
+                    ? "다음 만남"
+                    : "마감 완료"
+              }
               onPress={() =>
                 activeEncounter.status === "pending"
                   ? onCapture(activeEncounter.id)
-                  : onDone()
+                  : pendingCount > 0
+                    ? onNext()
+                    : onDone()
               }
             />
           </>
         ) : (
           <>
-            <Text style={styles.detailTodoTitle}>오늘은 완료한 항목이 없어요</Text>
-            <Text style={styles.helperText}>내일 다시 만남을 준비해봐요.</Text>
+            <Text style={styles.detailTodoTitle}>
+              {state.encounters.length > 0 ? "오늘의 만남을 모두 확인했어요" : "오늘은 완료한 항목이 없어요"}
+            </Text>
+            <Text style={styles.helperText}>
+              {state.encounters.length > 0 ? "컬렉션에서 포획 결과를 확인해 보세요." : "내일 다시 만남을 준비해봐요."}
+            </Text>
             <PrimaryButton label="돌아가기" onPress={onDone} />
           </>
         )}
@@ -565,10 +645,10 @@ function SecondaryButton({ label, onPress }) {
   );
 }
 
-function TaskRow({ todo, onPress, onToggle }) {
+function TaskRow({ todo, onPress, onToggle, locked = false }) {
   return (
     <Pressable style={styles.taskRow} onPress={onPress}>
-      <CheckBox checked={todo.completed} onPress={onToggle} />
+      <CheckBox checked={todo.completed} onPress={onToggle} disabled={locked} />
       <Text style={styles.taskTitle}>{todo.title}</Text>
       <Tag todo={todo} />
     </Pressable>
@@ -588,14 +668,18 @@ function Tag({ todo }) {
   );
 }
 
-function CheckBox({ checked, onPress }) {
+function CheckBox({ checked, onPress, disabled = false }) {
   return (
     <Pressable
-      style={[styles.checkBox, checked && styles.checkedBox]}
+      style={[styles.checkBox, checked && styles.checkedBox, disabled && styles.buttonDisabled]}
       onPress={(event) => {
         event.stopPropagation();
         onPress();
       }}
+      disabled={disabled}
+      accessibilityRole="checkbox"
+      accessibilityState={{ checked, disabled }}
+      accessibilityLabel={checked ? "완료 취소" : "완료 표시"}
     >
       {checked && <MaterialCommunityIcons name="check" size={27} color="#fff" />}
     </Pressable>
@@ -610,9 +694,15 @@ function CircleIcon({ name, compact = false }) {
   );
 }
 
-function PrimaryButton({ label, onPress }) {
+function PrimaryButton({ label, onPress, disabled = false }) {
   return (
-    <Pressable style={styles.primaryButton} onPress={onPress}>
+    <Pressable
+      style={[styles.primaryButton, disabled && styles.buttonDisabled]}
+      onPress={onPress}
+      disabled={disabled}
+      accessibilityRole="button"
+      accessibilityState={{ disabled }}
+    >
       <Text style={styles.primaryButtonText}>{label}</Text>
     </Pressable>
   );
@@ -662,10 +752,10 @@ function encounterStatusLabel(status) {
   return "대기";
 }
 
-function stableRandom(value) {
-  return (
-    [...value].reduce((sum, character) => sum + character.charCodeAt(0), 0) % 100
-  ) / 100;
+function todoMemo(todo) {
+  if (typeof todo.memo === "string" && todo.memo.trim()) return todo.memo;
+  if (Array.isArray(todo.note) && todo.note.length > 0) return todo.note.join("\n");
+  return "메모가 없어요.";
 }
 
 const styles = StyleSheet.create({
@@ -918,6 +1008,15 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: "900",
   },
+  buttonDisabled: {
+    opacity: 0.5,
+  },
+  lockedHint: {
+    color: "#6f7b88",
+    fontSize: 14,
+    marginTop: 18,
+    textAlign: "center",
+  },
   detailHeader: {
     alignItems: "center",
     flexDirection: "row",
@@ -1003,6 +1102,25 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 10,
     marginTop: 18,
+  },
+  emptyPreview: {
+    alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.9)",
+    borderRadius: 16,
+    flex: 1,
+    justifyContent: "center",
+    minHeight: 120,
+    padding: 18,
+  },
+  captureResult: {
+    color: "#b64a3a",
+    fontSize: 18,
+    fontWeight: "900",
+    marginTop: 18,
+    textAlign: "center",
+  },
+  captureSuccess: {
+    color: "#21823a",
   },
   candidateCard: {
     alignItems: "center",
